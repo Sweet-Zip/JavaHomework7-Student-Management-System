@@ -1,12 +1,10 @@
-import java.util.Comparator;
-
 public class Student{
     private String firstName;
     private String lastName;
     private String ID;
     private int age;
     private String address;
-    private char sex;
+    private String sex;
     public String getFirstName() {
         return firstName;
     }
@@ -46,11 +44,11 @@ public class Student{
         this.age = age;
     }
 
-    public char getSex() {
+    public String getSex() {
         return sex;
     }
 
-    public void setSex(char sex) {
+    public void setSex(String sex) {
         this.sex = sex;
     }
 
@@ -58,7 +56,7 @@ public class Student{
 
     }
 
-    public Student(String firstName, String lastName, String ID, int age, char sex, String address) {
+    public Student(String firstName, String lastName, String ID, int age, String sex, String address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.ID = ID;

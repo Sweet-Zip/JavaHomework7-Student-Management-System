@@ -1,12 +1,12 @@
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class StudentManagement extends Student {
-    List<Student> array = new ArrayList<>();
+    List<Student> array = new ArrayList<Student>();
+    private List<String> Storage = new ArrayList<String>();
     Scanner sc = new Scanner(System.in);
     Pattern patternMenuOption = Pattern.compile("^[abcdefgh]");
     Pattern patternABCOption = Pattern.compile("^[abc]");
@@ -14,9 +14,14 @@ public class StudentManagement extends Student {
     Pattern patternDay = Pattern.compile("\\b([1-9]|[12][0-9]|3[01])\\b");
     Pattern patternNumber = Pattern.compile("\\d+");
     private int age;
-    private char sex, confirm;
+    private String firstName;
+    private String lastName;
+    private String address;
+    private String ID = null;
+    private char confirm;
+    private String sex;
 
-    public void menuShow() {
+    public void menuShow() throws IOException {
         System.out.println("""
                 Welcome to java student management demo
                 Choose option below
@@ -27,12 +32,12 @@ public class StudentManagement extends Student {
                 e: Search Student
                 f: Sort Student
                 g: Save Data
-                h: Load Data (not work for now)
+                h: Load Data
                 exit: to go to previous page""");
         menuOption();
     }
 
-    private void menuOption() {
+    private void menuOption() throws IOException {
         String menuOpt;
         menuOpt = sc.next();
         Matcher matcherMenuOpt = patternMenuOption.matcher(menuOpt);
@@ -43,28 +48,28 @@ public class StudentManagement extends Student {
         }
         switch (menuOpt) {
             case "a":
-                addStudent(array);
+                addStudent();
                 break;
             case "b":
-                updatestudent(array);
+                updateStudent();
                 break;
             case "c":
-                deleteStudent(array);
+                deleteStudent();
                 break;
             case "d":
-                viewStudent(array);
+                viewStudent();
                 break;
             case "e":
-                searchStudent(array);
+                searchStudent();
                 break;
             case "f":
-                sortStudent(array);
+                sortStudent();
                 break;
             case "g":
-                saveFile(array);
+                saveFile();
                 break;
             case "h":
-                readFile(array);
+                readFile();
                 break;
             case "exit":
                 System.exit(0);
@@ -72,11 +77,8 @@ public class StudentManagement extends Student {
         }
     }
 
-    private void addStudent(List<Student> array) {
-        String firstName;
-        String lastName;
-        String address;
-        String ID = null;
+    private void addStudent() throws IOException {
+
         StringMessage stringMessage = new StringMessage();
         NumberMessage numberMessage = new NumberMessage();
 
@@ -112,7 +114,7 @@ public class StudentManagement extends Student {
                 Matcher matcherID = patternNumber.matcher(ID);
                 numberMessage.methodTry(ID, matcherID);
             } while (stringMessage.isBool());
-            if (checkID(array, ID)) {
+            if (checkID(ID)) {
                 System.out.println("The ID you entered already in used please try another ID");
             } else {
                 break;
@@ -121,10 +123,10 @@ public class StudentManagement extends Student {
 
 
         System.out.print("Enter Student Sex: ");
-        sex = sc.next().charAt(0);
-        while (sex != 'f' && sex != 'F' && sex != 'm' && sex != 'M') {
+        sex = sc.next();
+        while (!sex.equals("f") && !sex.equals("F") && !sex.equals("m") && !sex.equals("M")) {
             System.out.print("Input only m or f: ");
-            sex = sc.next().charAt(0);
+            sex = sc.next();
         }
 
         System.out.println("\nSuccess add this student\n");
@@ -144,12 +146,12 @@ public class StudentManagement extends Student {
             confirm = sc.next().charAt(0);
         }
         if (confirm == 'y' || confirm == 'Y') {
-            addStudent(array);
+            addStudent();
         }
         menuShow();
     }
 
-    private void displayStudentInfo(List<Student> array) {
+    private void displayStudentInfo() throws IOException {
         if (array.isEmpty()) {
             System.out.println("There is no student in data.");
             System.out.print("Enter to continues... ");
@@ -169,14 +171,13 @@ public class StudentManagement extends Student {
         }
     }
 
-    private void deleteStudent(List<Student> array) {
-        displayStudentInfo(array);
-        String ID;
+    private void deleteStudent() throws IOException {
+        displayStudentInfo();
 
         while (true) {
             System.out.print("Please enter the student ID to delete: ");
             ID = sc.next();
-            if (!checkID(array, ID)) {
+            if (!checkID(ID)) {
                 System.out.println("The ID you entered is not exist in data.");
             } else {
                 break;
@@ -191,25 +192,21 @@ public class StudentManagement extends Student {
         System.out.println("Do you want to remove another student? 'Y'es and 'N'o: ");
         confirm = sc.next().charAt(0);
         if (confirm == 'y' || confirm == 'Y') {
-            deleteStudent(array);
+            deleteStudent();
         }
         menuShow();
     }
 
-    private void updatestudent(List<Student> array) {
-        String firstName;
-        String lastName;
-        String address;
-        String ID;
+    private void updateStudent() throws IOException {
         StringMessage stringMessage = new StringMessage();
-        displayStudentInfo(array);
+        displayStudentInfo();
 
         while (true) {
             System.out.println("Please enter the student ID to modify");
             ID = sc.next();
-            if (!checkID(array, ID)) {
+            if (!checkID(ID)) {
                 System.out.println("The ID you entered is not exist in data.");
-            } else if (ID == "exit") {
+            } else if (ID.equals("exit")) {
                 menuShow();
             } else {
                 break;
@@ -240,10 +237,10 @@ public class StudentManagement extends Student {
         } while (stringMessage.isBool());
 
         System.out.print("Enter Student Sex: ");
-        sex = sc.next().charAt(0);
-        while (sex != 'f' && sex != 'F' && sex != 'm' && sex != 'M') {
+        sex = sc.next();
+        while (!sex.equals("f") && !sex.equals("F") && !sex.equals("m") && !sex.equals("M")) {
             System.out.print("Input only m or f: ");
-            sex = sc.next().charAt(0);
+            sex = sc.next();
         }
         Student student = new Student(firstName, lastName, ID, age, sex, address);
         for (int i = 0; i < array.size(); i++) {
@@ -255,20 +252,20 @@ public class StudentManagement extends Student {
         System.out.println("Do you want to update another student? 'Y'es and 'N'o: ");
         confirm = sc.next().charAt(0);
         if (confirm == 'y' || confirm == 'Y') {
-            updatestudent(array);
+            updateStudent();
         }
         menuShow();
     }
 
-    private void viewStudent(List<Student> array) {
-        displayStudentInfo(array);
+    private void viewStudent() throws IOException {
+        displayStudentInfo();
         System.out.print("Enter to continues... ");
         sc.nextLine();
         sc.nextLine();
         menuShow();
     }
 
-    private boolean checkID(List<Student> array, String ID) {
+    private boolean checkID(String ID) {
         for (int i = 0; i < array.size(); i++) {
             if (ID.equals(array.get(i).getID())) {
                 return true;
@@ -277,9 +274,7 @@ public class StudentManagement extends Student {
         return false;
     }
 
-    private void searchStudent(List<Student> array) {
-        String ID;
-        String firstName;
+    private void searchStudent() throws IOException {
         boolean bool = true;
         String searchOpt;
         System.out.println("Search Student:::");
@@ -288,7 +283,7 @@ public class StudentManagement extends Student {
                 b: Search By ID
                 c: Go Back To Main Menu""");
         searchOpt = sc.next();
-        Matcher matcherABCOpt=patternABCOption.matcher(searchOpt);
+        Matcher matcherABCOpt = patternABCOption.matcher(searchOpt);
         while (!matcherABCOpt.find()) {
             System.out.print("Please select from a to c only: ");
             searchOpt = sc.next();
@@ -305,7 +300,7 @@ public class StudentManagement extends Student {
                             System.out.println("The ID you entered is not exist in data.");
 
                         } else if (firstName.equals("exit")) {
-                            searchStudent(array);
+                            searchStudent();
                         } else {
                             break;
                         }
@@ -313,11 +308,11 @@ public class StudentManagement extends Student {
 
                     for (int i = 0; i < array.size(); i++) {
                         if (firstName.equals(array.get(i).getID())) {
-                            displayStudentInfo(array);
+                            displayStudentInfo();
                         }
                     }
                     if (confirm == 'y' || confirm == 'Y') {
-                        searchStudent(array);
+                        searchStudent();
                     }
                     menuShow();
                 }
@@ -326,22 +321,22 @@ public class StudentManagement extends Student {
                 while (true) {
                     System.out.println("Please enter the student ID to search");
                     ID = sc.next();
-                    if (!checkID(array, ID)) {
+                    if (!checkID(ID)) {
                         System.out.println("The ID you entered is not exist in data.");
                     } else if (ID.equals("exit")) {
-                        searchStudent(array);
+                        searchStudent();
                     } else {
                         break;
                     }
                     for (int i = 0; i < array.size(); i++) {
                         if (ID.equals(array.get(i).getID())) {
-                            displayStudentInfo(array);
+                            displayStudentInfo();
                         }
                     }
                     System.out.println("Do you want to search another student? 'Y'es and 'N'o: ");
                     confirm = sc.next().charAt(0);
                     if (confirm == 'y' || confirm == 'Y') {
-                        searchStudent(array);
+                        searchStudent();
                     }
                     menuShow();
                 }
@@ -351,37 +346,37 @@ public class StudentManagement extends Student {
         }
     }
 
-    public void sortStudent (List<Student> array) {
+    public void sortStudent() throws IOException {
         String sortOpt, sortOrder;
-        Student student=new Student();
+        Student student = new Student();
         System.out.println("Sort Student:::");
         System.out.println("""
                 a: Sort by ID
                 b: Sort by First Name
                 c: Go Back To Main Menu
                 """);
-        sortOpt=sc.next();
-        Matcher matcherABCOpt=patternABCOption.matcher(sortOpt);
+        sortOpt = sc.next();
+        Matcher matcherABCOpt = patternABCOption.matcher(sortOpt);
         while (!matcherABCOpt.find()) {
             System.out.print("Please select from a to c only: ");
             sortOpt = sc.next();
             matcherABCOpt = patternMenuOption.matcher(sortOpt);
         }
-        switch (sortOpt){
+        switch (sortOpt) {
             case "a":
                 System.out.println("""
-                a: Ascending order (lowest to highest)
-                b: Descending order (highest to lowest)
-                c: Go Back To Main Menu
-                """);
-                sortOrder=sc.next();
-                matcherABCOpt=patternABCOption.matcher(sortOrder);
+                        a: Ascending order (lowest to highest)
+                        b: Descending order (highest to lowest)
+                        c: Go Back To Main Menu
+                        """);
+                sortOrder = sc.next();
+                matcherABCOpt = patternABCOption.matcher(sortOrder);
                 while (!matcherABCOpt.find()) {
                     System.out.print("Please select from a to c only: ");
                     sortOrder = sc.next();
                     matcherABCOpt = patternMenuOption.matcher(sortOrder);
                 }
-                switch (sortOrder){
+                switch (sortOrder) {
                     case "a":
                         Collections.sort(array, Comparator.comparing(Student::getID));
                         array.forEach(System.out::println);
@@ -389,7 +384,7 @@ public class StudentManagement extends Student {
                         System.out.print("Enter to continues... ");
                         sc.nextLine();
                         sc.nextLine();
-                        sortStudent(array);
+                        sortStudent();
                         break;
                     case "b":
                         Collections.sort(array, Comparator.comparing(Student::getID));
@@ -399,7 +394,7 @@ public class StudentManagement extends Student {
                         System.out.print("Enter to continues... ");
                         sc.nextLine();
                         sc.nextLine();
-                        sortStudent(array);
+                        sortStudent();
                         break;
                     case "c":
                         menuShow();
@@ -408,18 +403,18 @@ public class StudentManagement extends Student {
                 break;
             case "b":
                 System.out.println("""
-                a: Ascending order (A-Z)
-                b: Descending order (Z-A)
-                c: Go Back To Main Menu
-                """);
-                sortOrder=sc.next();
-                matcherABCOpt=patternABCOption.matcher(sortOrder);
+                        a: Ascending order (A-Z)
+                        b: Descending order (Z-A)
+                        c: Go Back To Main Menu
+                        """);
+                sortOrder = sc.next();
+                matcherABCOpt = patternABCOption.matcher(sortOrder);
                 while (!matcherABCOpt.find()) {
                     System.out.print("Please select from a to c only: ");
                     sortOrder = sc.next();
                     matcherABCOpt = patternMenuOption.matcher(sortOrder);
                 }
-                switch (sortOrder){
+                switch (sortOrder) {
                     case "a":
                         Collections.sort(array, Comparator.comparing(Student::getFirstName));
                         array.forEach(System.out::println);
@@ -427,7 +422,7 @@ public class StudentManagement extends Student {
                         System.out.print("Enter to continues... ");
                         sc.nextLine();
                         sc.nextLine();
-                        sortStudent(array);
+                        sortStudent();
                         break;
                     case "b":
                         Collections.sort(array, Comparator.comparing(Student::getFirstName));
@@ -437,7 +432,7 @@ public class StudentManagement extends Student {
                         System.out.print("Enter to continues... ");
                         sc.nextLine();
                         sc.nextLine();
-                        sortStudent(array);
+                        sortStudent();
                         break;
                     case "c":
                         menuShow();
@@ -449,16 +444,23 @@ public class StudentManagement extends Student {
                 break;
         }
     }
-    public void saveFile(List<Student>array){
 
-        try {
-            FileWriter writer = new FileWriter("output.txt");
-            for(Student str: array) {
-                writer.write(str + System.lineSeparator());
+    public void saveFile() throws IOException {
+        FileWriter fw = new FileWriter("student.txt");
+        PrintWriter pw = new PrintWriter(fw);
+        if (array.isEmpty()) {
+            System.out.println("There is no student in data.");
+            System.out.print("Enter to continues... ");
+            sc.nextLine();
+            sc.nextLine();
+            menuShow();
+        } else {
+            for (int i = 0; i < array.size(); i++) {
+                pw.println(array.get(i).getFirstName() + ":" + array.get(i).getLastName() + ":"
+                        + array.get(i).getID() + ":" + array.get(i).getAge() + ":"
+                        + array.get(i).getSex() + ":" + array.get(i).getAddress());
             }
-            writer.close();
-        }catch(IOException e){
-            e.printStackTrace();
+            pw.close();
         }
         System.out.println("File Save success");
         System.out.print("Enter to continues... ");
@@ -466,13 +468,32 @@ public class StudentManagement extends Student {
         sc.nextLine();
         menuShow();
     }
-    public void readFile(List<Student>array){
-        String line=sc.next();
-        while (sc.hasNext()){
-            String[] spit=line.split(",");
-            array.add(new Student());
-            menuShow();
-        }
 
+    private void readFile() throws IOException {
+        FileReader fr = new FileReader("student.txt");
+        BufferedReader br = new BufferedReader(fr);
+        displayBook(br);
+        convertToBooks();
+    }
+
+    private void displayBook(BufferedReader br) throws IOException {
+        String line = br.readLine();
+        while (line != null) {
+            Storage.add(line);
+            line = br.readLine();
+        }
+        br.close();
+    }
+
+    private void convertToBooks() throws IOException {
+        for (int i = 0; i < Storage.size(); i++) {
+            String[] stu = Storage.get(i).split(":");
+            array.add(new Student(stu[0], stu[1], stu[2], Integer.parseInt(stu[3]), stu[4], stu[5]));
+        }
+        System.out.println("File import success");
+        System.out.print("Enter to continues... ");
+        sc.nextLine();
+        sc.nextLine();
+        menuShow();
     }
 }
